@@ -35,5 +35,5 @@ def process_images():
         output_pdf_path = output_pdf_file.name
 
     fill_pdf(INPUT_PDF_PATH, output_pdf_path, data, field_mapping)
-
+    print("Pdf filled successfully!!!, sending to backend")
     return send_file(output_pdf_path, as_attachment=True, download_name='filled_form.pdf')
