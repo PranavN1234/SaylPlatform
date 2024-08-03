@@ -1,4 +1,5 @@
 import os
+import logging
 from flask import request, jsonify, send_file
 from app.api import api_blueprint
 from app.services.ai_service import extract_data_from_base64_images
@@ -13,7 +14,8 @@ INPUT_PDF_PATH = os.path.join(DATA_DIR, 'ISF_FORM.pdf')
 
 @api_blueprint.route('/', methods=['GET'])
 def hello_world():
-    return jsonify({"hello world": "hello world"})
+    logging.info("Hello world logged")
+    return jsonify({"my world": "my world"})
 
 @api_blueprint.route('/process-images', methods=['POST'])
 def process_images():
@@ -35,5 +37,5 @@ def process_images():
         output_pdf_path = output_pdf_file.name
 
     fill_pdf(INPUT_PDF_PATH, output_pdf_path, data, field_mapping)
-    print("Pdf filled successfully!!!, sending to backend")
-    return send_file(output_pdf_path, as_attachment=True, download_name='filled_form.pdf')
+    logging.info("Filling PDF With extracted data and sending to frontend!")
+    return send_file(output_pdf_path, as_attachment=True, download_name='filled_form.pdf', mimetype='application/pdf')
