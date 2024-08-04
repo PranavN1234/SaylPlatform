@@ -1,6 +1,8 @@
 import PyPDF2
 from .data_models import BillOfLadingData
-
+from pdf2image import convert_from_path
+import tempfile
+import base64
 def fill_pdf(input_pdf_path, output_pdf_path, data: BillOfLadingData, field_mapping):
     with open(input_pdf_path, "rb") as input_file:
         pdf_reader = PyPDF2.PdfReader(input_file)
@@ -36,3 +38,22 @@ def fill_pdf(input_pdf_path, output_pdf_path, data: BillOfLadingData, field_mapp
         # Write the filled PDF to a new file
         with open(output_pdf_path, "wb") as output_file:
             pdf_writer.write(output_file)
+
+def convert_pdfs_to_images(pdf_files):
+    """
+    Converts PDF files to images and returns a list of base64 encoded images.
+    """
+    base64_images = []
+
+    for pdf_file in pdf_files:
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_pdf_file:
+            pdf_file.save(temp_pdf_file.name)
+            images = convert_from_path(temp_pdf_file.name)
+            for image in images:
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp_image_file:
+                    image.save(temp_image_file.name, 'PNG')
+                    with open(temp_image_file.name, 'rb') as img_file:
+                        base64_image = base64.b64encode(img_file.read()).decode('utf-8')
+                        base64_images.append(base64_image)
+
+    return base64_images

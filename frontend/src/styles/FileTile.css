@@ -1,0 +1,28 @@
+/* src/styles/FileTile.css */
+
+.file-tile {
+    width: 200px;
+    height: 120px;
+    display: inline-block;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .file-tile .ant-card-body {
+    padding: 16px;
+  }
+  
+  .delete-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: red;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+  }
+  
+  .file-tile:hover .delete-button {
+    opacity: 1;
+  }
+  

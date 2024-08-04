@@ -1,0 +1,11 @@
+/* src/components/FileUploader.css */
+
+.file-uploader-card {
+    margin: auto;
+    width: 50%;
+  }
+  
+  .file-uploader-button {
+    width: 100%;
+  }
+  
