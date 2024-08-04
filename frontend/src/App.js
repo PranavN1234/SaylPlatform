@@ -18,23 +18,31 @@ function App() {
       message.error('Please upload at least one file.');
       return;
     }
-
+  
     const formData = new FormData();
     selectedFiles.forEach((file) => {
       formData.append('images', file);
     });
-
+  
     setLoading(true);
-
+  
     try {
-      const response = await axios.post('/process-images', formData, {
+      const response = await axios.post(`http://ec2-34-230-86-87.compute-1.amazonaws.com/process-images`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         responseType: 'blob', // Important to handle binary data
       });
-
-      const filename = response.headers['content-disposition']
-        .split('filename=')[1]
-        .replace(/['"]/g, '');
+  
+      // Check if content-disposition header is present
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'downloaded_file.pdf'; // Default filename
+  
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
+      }
+  
       FileDownload(response.data, filename);
       message.success('File downloaded successfully.');
     } catch (error) {

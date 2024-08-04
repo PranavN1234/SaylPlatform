@@ -11,7 +11,7 @@ logging.basicConfig(
     ]
 )
 
-load_dotenv()
+load_dotenv(verbose=True, override=True)
 
 app = create_app()
 
