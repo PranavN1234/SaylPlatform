@@ -42,6 +42,7 @@ def extract_data_from_base64_images(base64_images) -> BillOfLadingData:
         )
 
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+    print(OPENAI_API_KEY)
     openai.api_key = OPENAI_API_KEY
 
     response = openai.chat.completions.create(
