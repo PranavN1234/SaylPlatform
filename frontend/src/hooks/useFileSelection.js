@@ -5,14 +5,23 @@ const useFileSelection = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
 
   const addFile = (file) => {
-    setSelectedFiles((currentSelection) => [...currentSelection, file]);
+    setSelectedFiles((currentSelection) => {
+      const newSelection = [...currentSelection, file];
+      console.log('File added:', file.name);
+      console.log('Current selection:', newSelection);
+      return newSelection;
+    });
   };
 
   const removeFile = (file) => {
     setSelectedFiles((currentSelection) => {
       const newSelection = currentSelection.slice();
       const fileIndex = currentSelection.indexOf(file);
-      newSelection.splice(fileIndex, 1);
+      if (fileIndex !== -1) {
+        newSelection.splice(fileIndex, 1);
+        console.log('File removed:', file.name);
+      }
+      console.log('Current selection after removal:', newSelection);
       return newSelection;
     });
   };

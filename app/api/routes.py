@@ -5,7 +5,7 @@ from app.api import api_blueprint
 from app.services.ai_service import extract_data_from_base64_images
 from app.services.pdf_service import fill_pdf
 from app.utils.field_mapping import field_mapping
-import base64
+from app.services.pdf_service import convert_pdfs_to_images
 import tempfile
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -14,20 +14,16 @@ INPUT_PDF_PATH = os.path.join(DATA_DIR, 'ISF_FORM.pdf')
 
 @api_blueprint.route('/', methods=['GET'])
 def hello_world():
-    logging.info("Hello world logged")
-    return jsonify({"my world": "my world"})
+    return jsonify({"hello world": "hello world"})
 
-@api_blueprint.route('/process-images', methods=['POST'])
-def process_images():
-    if 'images' not in request.files:
-        return jsonify({"error": "No images provided"}), 400
+@api_blueprint.route('/process-pdfs', methods=['POST'])
+def process_pdfs():
+    if 'pdfs' not in request.files:
+        return jsonify({"error": "No PDFs provided"}), 400
 
-    image_files = request.files.getlist('images')
-    base64_images = []
+    pdf_files = request.files.getlist('pdfs')
+    base64_images = convert_pdfs_to_images(pdf_files)
 
-    for image_file in image_files:
-        base64_image = base64.b64encode(image_file.read()).decode('utf-8')
-        base64_images.append(base64_image)
 
     # Extract data using AI service
     data = extract_data_from_base64_images(base64_images)
@@ -37,5 +33,7 @@ def process_images():
         output_pdf_path = output_pdf_file.name
 
     fill_pdf(INPUT_PDF_PATH, output_pdf_path, data, field_mapping)
-    logging.info("Filling PDF With extracted data and sending to frontend!")
-    return send_file(output_pdf_path, as_attachment=True, download_name='filled_form.pdf', mimetype='application/pdf')
+    print("Pdf filled successfully!!!, sending to backend")
+    return send_file(output_pdf_path, as_attachment=True, download_name='filled_form.pdf')
+
+    

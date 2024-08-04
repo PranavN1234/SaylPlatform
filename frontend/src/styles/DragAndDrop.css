@@ -1,0 +1,29 @@
+/* src/styles/DragAndDrop.css */
+.drag-and-drop-container {
+    width: 100%;
+    max-width: 800px; /* Adjust width as per your UI design */
+    margin: 20px auto;
+  }
+  
+  .ant-upload {
+    border: 2px dashed #d9d9d9;
+    border-radius: 6px;
+    padding: 40px 20px;
+  }
+  
+  .ant-upload-drag-icon {
+    font-size: 32px;
+    color: #1890ff;
+  }
+  
+  .ant-upload-text {
+    margin-top: 16px;
+    color: rgba(0, 0, 0, 0.65);
+    font-size: 16px;
+  }
+  
+  .ant-upload-hint {
+    color: rgba(0, 0, 0, 0.45);
+    font-size: 14px;
+  }
+  
