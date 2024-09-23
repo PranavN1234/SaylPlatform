@@ -7,6 +7,7 @@ from app.services.pdf_service import fill_pdf
 from app.utils.field_mapping import field_mapping
 from app.services.pdf_service import convert_pdfs_to_images
 from app.services.chatbot.handler import handle_user_query
+from app.services.chatbot.chatbot_ai import ChatbotAI
 
 import tempfile
 
@@ -38,6 +39,8 @@ def process_pdfs():
     print("Pdf filled successfully!!!, sending to backend")
     return send_file(output_pdf_path, as_attachment=True, download_name='filled_form.pdf')
 
+chatbot_ai = ChatbotAI()
+
 @api_blueprint.route('/chatbot/query', methods=['POST'])
 def chatbot_query():
     try:
@@ -48,8 +51,12 @@ def chatbot_query():
 
         # Call the chatbot handler to process the query
         response = handle_user_query(user_query)
+        intent = response.get("intent")
+        print(response)
+        # Generate AI response based on the intent and context
+        ai_response = chatbot_ai.generate_gpt_response(intent, response, user_query)
 
-        return jsonify(response), 200
+        return jsonify(ai_response.dict()), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

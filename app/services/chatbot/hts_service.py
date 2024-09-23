@@ -35,8 +35,8 @@ def calculate_bm25_similarity(target_product, descriptions):
     
     return sorted_descriptions
 
-# Main function to find similar HTS codes and return the full JSON for top 10 similar entries
-def find_similar_hts_codes(target_product):
+# Main function to find similar HTS codes and return the full JSON for top N similar entries
+def find_similar_hts_codes(target_product, max_records=10):
     hts_data = fetch_hts_data(target_product)
     
     # Extract descriptions from HTS data
@@ -49,8 +49,11 @@ def find_similar_hts_codes(target_product):
     # Calculate similarity scores using BM25
     similar_descriptions = calculate_bm25_similarity(target_product, descriptions)
     
-    # Get top 10 similar descriptions (full JSON)
-    top_similar = similar_descriptions[:10]
+    # Determine the number of records to return (minimum of max_records or available descriptions)
+    num_records = min(len(similar_descriptions), max_records)
+    
+    # Get the top N similar descriptions (full JSON)
+    top_similar = similar_descriptions[:num_records]
     
     # Return the full records corresponding to the top similar descriptions
     top_similar_records = [hts_data[i] for i, _ in top_similar]

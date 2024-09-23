@@ -76,20 +76,32 @@ def fetch_ruling_details(ruling_number, search_query):
         }
     return None
 
-# Main function to find similar cross rulings and return the top 5 summaries
-def find_similar_cross_rulings(target_product, max_pages=1):
+# Main function to find similar cross rulings and return the top N summaries (with failsafe)
+def find_similar_cross_rulings(target_product, max_pages=1, max_results=5):
     rulings_data = fetch_cross_rulings_data(target_product, max_pages)
     
+    # Check if there are any rulings to process
+    if not rulings_data:
+        print("No rulings found for the given product.")
+        return []
+
     # Extract descriptions (subjects) from rulings data
     descriptions = [ruling['subject'] for ruling in rulings_data]
     
+    if not descriptions:
+        print("No descriptions found in the rulings data.")
+        return []
+
     # Calculate similarity scores using BM25
     similar_descriptions = calculate_bm25_similarity(target_product, descriptions)
     
-    # Get top 5 similar rulings
-    top_similar = similar_descriptions[:5]
+    # Determine the number of records to return (minimum of max_results or available descriptions)
+    num_records = min(len(similar_descriptions), max_results)
     
-    # Fetch detailed information and summaries for the top 5 similar rulings
+    # Get the top N similar rulings
+    top_similar = similar_descriptions[:num_records]
+    
+    # Fetch detailed information and summaries for the top similar rulings
     top_similar_records = []
     for i, _ in top_similar:
         ruling_number = rulings_data[i]['rulingNumber']
@@ -100,4 +112,3 @@ def find_similar_cross_rulings(target_product, max_pages=1):
             top_similar_records.append(details)
 
     return top_similar_records
-

@@ -3,32 +3,32 @@ from gliner_spacy.pipeline import GlinerSpacy
 
 # Load spaCy model and add GLinER pipeline for product extraction
 nlp = spacy.load("en_core_web_sm")
-nlp.add_pipe("gliner_spacy", config={"labels": ["product_name", "country"]})  # Adding country label
+nlp.add_pipe("gliner_spacy", config={"labels": ["product_name", "country"]})  # Including country extraction
 
 def extract_product_gliner(user_query):
     """
-    Extracts product information from the user query using SpaCy, GLinER, and dependency parsing.
+    Extracts product information, country, and quantity from the user query using SpaCy, GLinER, and dependency parsing.
     
     Args:
         user_query (str): The query from the user.
         
     Returns:
-        str: A concatenated string of the extracted product, country, and packaging (if applicable).
+        str: A concatenated string of the extracted product, country, and packaging (quantity), if applicable.
     """
     doc = nlp(user_query)
     extracted_values = []
 
-    # Try extracting using GLinER's 'product_name' label
+    # Extract using GLinER's 'product_name' label for product names
     for ent in doc.ents:
         if ent.label_ == "product_name" and ent.text.lower() != 'hts':
             extracted_values.append(ent.text)
 
-    # Extract country (GPE or country from GLinER) if mentioned
+    # Extract country (either using GLinER's 'country' or SpaCy's 'GPE')
     for ent in doc.ents:
         if ent.label_ in {"GPE", "country"}:
             extracted_values.append(ent.text)
 
-    # Extract quantity or packaging information (custom rule using dependency parsing)
+    # Extract quantity or packaging information using dependency parsing
     for token in doc:
         if token.dep_ in {"nummod", "quantmod"} and token.head.pos_ == "NOUN":
             packaging = f"{token.text} {token.head.text}"
