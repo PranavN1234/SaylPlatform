@@ -148,7 +148,6 @@ urllib3==2.2.2
 wasabi==1.1.3
 wcwidth==0.2.13
 weasel==0.4.1
-webdriver-manager==4.0.2
 Werkzeug==3.0.2
 wrapt==1.16.0
 yarl==1.11.1
