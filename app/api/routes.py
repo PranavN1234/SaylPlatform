@@ -6,6 +6,8 @@ from app.services.ai_service import extract_data_from_base64_images
 from app.services.pdf_service import fill_pdf
 from app.utils.field_mapping import field_mapping
 from app.services.pdf_service import convert_pdfs_to_images
+from app.services.chatbot.handler import handle_user_query
+
 import tempfile
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -35,5 +37,20 @@ def process_pdfs():
     fill_pdf(INPUT_PDF_PATH, output_pdf_path, data, field_mapping)
     print("Pdf filled successfully!!!, sending to backend")
     return send_file(output_pdf_path, as_attachment=True, download_name='filled_form.pdf')
+
+@api_blueprint.route('/chatbot/query', methods=['POST'])
+def chatbot_query():
+    try:
+        # Get the user query from the request payload
+        user_query = request.json.get("query")
+        if not user_query:
+            return jsonify({"error": "No query provided"}), 400
+
+        # Call the chatbot handler to process the query
+        response = handle_user_query(user_query)
+
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
     

@@ -4,7 +4,7 @@ import FileDownload from 'js-file-download';
 import { message } from 'antd';
 
 const apiClient = axios.create({
-  baseURL: 'http://127.0.0.1:8000', // Base URL for your API
+  baseURL: 'https://backend.sayl.io/', // Base URL for your API
   headers: {
     'Content-Type': 'multipart/form-data',
   },
@@ -18,7 +18,7 @@ const uploadFiles = async (files) => {
   });
 
   try {
-    const response = await apiClient.post('/process-pdfs', formData);
+    const response = await apiClient.post('process-pdfs', formData);
 
     const contentDisposition = response.headers['content-disposition'];
     let filename = 'downloaded_file.pdf'; // Default filename

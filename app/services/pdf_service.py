@@ -48,7 +48,7 @@ def convert_pdfs_to_images(pdf_files):
     for pdf_file in pdf_files:
         with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_pdf_file:
             pdf_file.save(temp_pdf_file.name)
-            images = convert_from_path(temp_pdf_file.name)
+            images = convert_from_path(temp_pdf_file.name, poppler_path=r'C:\Program Files\poppler-24.07.0\Library\bin')
             for image in images:
                 with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp_image_file:
                     image.save(temp_image_file.name, 'PNG')

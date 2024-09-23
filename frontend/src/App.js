@@ -13,7 +13,7 @@ function App() {
       <Layout className="layout">
         <Header>
           <Typography.Title level={2} style={{ color: 'white' }}>
-            Sayl
+            Sayl App
           </Typography.Title>
         </Header>
         <Content style={{ padding: '50px' }}>
