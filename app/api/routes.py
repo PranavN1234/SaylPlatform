@@ -17,7 +17,7 @@ INPUT_PDF_PATH = os.path.join(DATA_DIR, 'ISF_FORM.pdf')
 
 @api_blueprint.route('/', methods=['GET'])
 def hello_world():
-    return jsonify({"hello world": "hello world"})
+    return jsonify({"version": "apiv1"})
 
 @api_blueprint.route('/process-pdfs', methods=['POST'])
 def process_pdfs():
@@ -26,11 +26,11 @@ def process_pdfs():
 
     pdf_files = request.files.getlist('pdfs')
     base64_images = convert_pdfs_to_images(pdf_files)
-
+    logging.info("Images received!!")	
 
     # Extract data using AI service
     data = extract_data_from_base64_images(base64_images)
-
+    logging.info("Data extracted!!")	
     # Fill the PDF with extracted data
     with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as output_pdf_file:
         output_pdf_path = output_pdf_file.name
