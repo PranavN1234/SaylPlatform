@@ -12,7 +12,7 @@ class CrossRulingsResponse(BaseModel):
     message: str = Field(description="A friendly message or brief introduction summarizing the cross rulings provided.")
     intent: str = Field(description="The detected intent, which is 'cross_rulings_inquiry' for this response.")  # Removed default
     product: str = Field(description="The product name extracted from the user query, possibly including details such as country or packaging.")
-    best_ruling: Optional[Ruling] = Field(description="The most relevant ruling found based on the product query, chosen by the AI.")
+    best_ruling: Optional[Ruling] = Field(description="10 digit HTS Code, make sure you include both the heading and suffix to the best ruling")
     related_rulings: List[Ruling] = Field(description="A list of additional rulings that may be related to the product query.")
     gpt_insights: Optional[str] = Field(description="Optional GPT-generated insights explaining differences between rulings or other important factors to consider.")
 
