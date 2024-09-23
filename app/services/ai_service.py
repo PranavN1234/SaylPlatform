@@ -2,6 +2,7 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from .data_models import BillOfLadingData
 from .image_processing import get_base64_image
+import logging
 import openai
 import os
 
@@ -50,7 +51,7 @@ def extract_data_from_base64_images(base64_images) -> BillOfLadingData:
         messages=messages,
         temperature=0.0,
     )
-
+    logging.info(f"response is: {response}")
     output = response.choices[0].message.content
     parsed_output = parser.parse(output)
 
