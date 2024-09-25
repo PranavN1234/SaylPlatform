@@ -54,7 +54,6 @@ def calculate_bm25_similarity(target_product, descriptions):
     
     return sorted_descriptions
 
-# Function to fetch detailed ruling information and summarize it
 def fetch_ruling_details(ruling_number, search_query):
     api_url = f"https://rulings.cbp.gov/api/ruling/{ruling_number}"
     params = {'textToHighlight': search_query}
@@ -67,9 +66,16 @@ def fetch_ruling_details(ruling_number, search_query):
         # Summarize the full text
         summary = summarize_text(full_text)
 
+        # Construct the downloadable URL
+        downloadable_url = 'https://rulings.cbp.gov' + data.get('url', '')
+        
+        # Construct the search URL
+        search_url = f"https://rulings.cbp.gov/search?term={ruling_number}&collection=ALL&sortBy=RELEVANCE&pageSize=30&page=1"
+
         return {
             'Summary': summary,
-            'URL': 'https://rulings.cbp.gov' + data.get('url', ''),
+            'Downloadable URL': downloadable_url,  # Link to download the ruling document
+            'Search URL': search_url,  # Link to the search page
             'ID': data.get('id', 'N/A'),
             'Tariffs': data.get('tariffs', []),
             'Related Rulings': data.get('relatedRulings', [])

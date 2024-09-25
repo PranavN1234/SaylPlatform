@@ -6,6 +6,7 @@ class Ruling(BaseModel):
     Title: str = Field(description="The title of the ruling document, describing the product and ruling context.")
     Summary: str = Field(description="A short summary of the ruling, highlighting the key decision or product classification.")
     Tariffs: List[str] = Field(description="A list of tariff codes associated with the product in the ruling.")
+    SearchUrl: str = Field(description="The direct search url found in the context to link to the cbp for that ruling number")
     URL: str = Field(description="The URL to access the full ruling document.")  # Changed to str
 
 class CrossRulingsResponse(BaseModel):

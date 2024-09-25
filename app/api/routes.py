@@ -53,18 +53,18 @@ def chatbot_query():
         response = handle_user_query(user_query)
         intent = response.get("intent")
         print(response)
-        
+
         # Generate AI response based on the intent and context
         ai_response = chatbot_ai.generate_gpt_response(intent, response, user_query)
 
-        # Add intent to the AI response dictionary
+        # Add intent and Search URL to the AI response dictionary
         ai_response_dict = ai_response.dict()
         ai_response_dict['intent'] = intent
-
         return jsonify(ai_response_dict), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
     
