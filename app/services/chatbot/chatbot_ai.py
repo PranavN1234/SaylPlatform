@@ -37,7 +37,7 @@ class ChatbotAI:
 
         # Call OpenAI with the formatted context and expected response format
         completion = self.openai_client.beta.chat.completions.parse(
-            model="gpt-4o-mini",
+            model="gpt-4o-2024-08-06",
             messages=[
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": prompt}
