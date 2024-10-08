@@ -2,6 +2,8 @@ import os
 import logging
 from flask import request, jsonify, send_file
 from app.api import api_blueprint
+from app.models.user_model import User  # Import the User model
+from flask_jwt_extended import jwt_required  # Import JWT protection
 from app.services.ai_service import extract_data_from_base64_images
 from app.services.pdf_service import fill_pdf
 from app.utils.field_mapping import field_mapping
@@ -20,6 +22,7 @@ def hello_world():
     return jsonify({"version": "apiv2"})
 
 @api_blueprint.route('/process-pdfs', methods=['POST'])
+@jwt_required()
 def process_pdfs():
     if 'pdfs' not in request.files:
         return jsonify({"error": "No PDFs provided"}), 400
@@ -42,6 +45,7 @@ def process_pdfs():
 chatbot_ai = ChatbotAI()
 
 @api_blueprint.route('/chatbot/query', methods=['POST'])
+@jwt_required()
 def chatbot_query():
     try:
         # Get the user query from the request payload
