@@ -19,7 +19,7 @@ INPUT_PDF_PATH = os.path.join(DATA_DIR, 'ISF_FORM.pdf')
 
 @api_blueprint.route('/', methods=['GET'])
 def hello_world():
-    return jsonify({"version": "apiv2"})
+    return jsonify({"version": "apiv3"})
 
 @api_blueprint.route('/process-pdfs', methods=['POST'])
 @jwt_required()
