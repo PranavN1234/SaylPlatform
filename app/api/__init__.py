@@ -4,3 +4,4 @@ api_blueprint = Blueprint('api', __name__)
 
 from . import routes
 from . import auth_routes
+from . import conversation_routes

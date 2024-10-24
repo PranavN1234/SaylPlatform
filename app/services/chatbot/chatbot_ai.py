@@ -1,6 +1,8 @@
 from openai import OpenAI
 from .models import CrossRulingsResponse, HTSResponse, GeneralResponse
+from app.models.conversation_model import Conversation, Message
 from typing import Dict, Union
+from app import db
 
 
 class ChatbotAI:
@@ -45,9 +47,11 @@ class ChatbotAI:
             response_format=response_format
         )
 
-        # Parse the message and return the appropriate structured response
+        # Parse the message and handle success or failure
         message = completion.choices[0].message
+        
         if message.parsed:
             return message.parsed  # Parsed into the correct Pydantic model
         else:
+            # If parsing failed, log the refusal or error and return a default response or error
             raise ValueError(f"Failed to parse response: {message.refusal}")

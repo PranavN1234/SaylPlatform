@@ -4,34 +4,42 @@ from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
-import os
+from flask_migrate import Migrate
+from app.config import get_config  # Import the environment-based config selector
 
-load_dotenv()
+load_dotenv()  # Load environment variables
 
-db = SQLAlchemy()  # SQLAlchemy for database interactions
-bcrypt = Bcrypt()  # Bcrypt for password hashing
-jwt = JWTManager()  # JWTManager for handling JWT tokens
-
+# Initialize Flask extensions
+db = SQLAlchemy()
+bcrypt = Bcrypt()
+jwt = JWTManager()
+migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
 
-    # Load configurations from environment variables
-    app.config['SESSION_TYPE'] = 'filesystem'
-    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-    app.config['SQLALCHEMY_DATABASE_URI'] = (
-        f"mysql+pymysql://{os.getenv('DB_USERNAME')}:{os.getenv('DB_PASSWORD')}"
-        f"@{os.getenv('DB_HOST')}/{os.getenv('DB_NAME')}"
-    )
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')  # Set JWT secret key
+    # Load the appropriate config class (Development or Production)
+    config = get_config()
+    app.config.from_object(config)  # Apply the selected config
 
-    # Initialize extensions
+    # Add any additional configurations
+    app.config['SESSION_TYPE'] = 'filesystem'  # Store session data on filesystem
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit uploads to 16MB
+
+    # Debugging: Print environment and DB URI to ensure correctness
+    print(f"Environment: {config.__name__}")
+    print(f"SQLALCHEMY_DATABASE_URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
+
+    # Initialize extensions with the app context
     db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
     CORS(app, supports_credentials=True, origins="*")
-      
+
+    # Set up Flask-Migrate with the app and database
+    migrate.init_app(app, db)
+
+    # Register API blueprints
     from app.api.routes import api_blueprint
     app.register_blueprint(api_blueprint)
 

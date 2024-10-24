@@ -21,20 +21,20 @@ def handle_user_query(user_query):
     if intent in ["hts_inquiry", "cross_rulings_inquiry"]:
         product = extract_product_gliner(user_query)
         if product:
-            print(f"Extracted product: {product}")
+            
             response["product"] = product
             if intent == "hts_inquiry":
-                print(f"Searching HTS database for: {product}")
+                
                 # Fetch 10 most similar HTS codes based on product description
                 similar_hts = find_similar_hts_codes(product)
                 response["similar_hts_codes"] = similar_hts  # Add the similar HTS codes to the response
             elif intent == "cross_rulings_inquiry":
-                print(f"Searching cross rulings database for: {product}")
+                
                 # Fetch 10 most similar cross rulings based on product description
                 similar_cross_rulings = find_similar_cross_rulings(product)
                 response["similar_cross_rulings"] = similar_cross_rulings  # Add the similar cross rulings to the response
         else:
-            print("No product could be extracted from the query.")
+            
             response["error"] = "No product extracted"
     else:
         print("Handling as a general query.")

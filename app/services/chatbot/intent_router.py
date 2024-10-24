@@ -9,7 +9,6 @@ def setup_route_layer():
     # Load the .env file
     
     load_dotenv()
-    print(semantic_router.__file__)
     # Set the OpenAI API key
     os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
