@@ -28,6 +28,7 @@ INPUT_BOL_PATH = os.path.join(DATA_DIR, 'BOL.pdf')
 def hello_world():
     return jsonify({"version": "apiv5"})
 
+
 @api_blueprint.route('/process-pdfs', methods=['POST'])
 def process_pdfs():
     if 'pdfs' not in request.files:
