@@ -3,6 +3,11 @@ from .data_models import BillOfLadingData
 from pdf2image import convert_from_path
 import tempfile
 import base64
+import pdfplumber
+from typing import List
+from werkzeug.datastructures import FileStorage
+import fitz
+
 def fill_pdf(input_pdf_path, output_pdf_path, data: BillOfLadingData, field_mapping):
     with open(input_pdf_path, "rb") as input_file:
         pdf_reader = PyPDF2.PdfReader(input_file)
@@ -57,3 +62,63 @@ def convert_pdfs_to_images(pdf_files):
                         base64_images.append(base64_image)
 
     return base64_images
+
+def extract_text_from_pdfs(pdf_files: List[FileStorage]) -> str:
+    """
+    Extracts text from multiple PDF files and formats it as "PDF Title" followed by the content.
+    Each PDF's content is separated by a line break.
+
+    Parameters:
+    pdf_files (List[FileStorage]): List of in-memory FileStorage PDF files from Flask.
+
+    Returns:
+    str: Concatenated text with each PDF's title and content.
+    """
+    text = ''
+
+    for pdf_file in pdf_files:
+        pdf_title = pdf_file.filename  # Get the filename directly
+        text += f"{pdf_title}\n"  # Add the title
+
+        # Use pdf_file.stream to read the in-memory file
+        with pdfplumber.open(pdf_file.stream) as pdf:
+            for page in pdf.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text += page_text + '\n'
+
+        text += '\n'  # Add a blank line after each PDF content
+
+    return text
+
+def fill_pdf_with_pymupdf(template_pdf_path, output_pdf_path, mapped_data):
+    """
+    Fills form fields in a PDF template with data from `mapped_data` using PyMuPDF.
+
+    Parameters:
+    - template_pdf_path (str): Path to the original PDF template with form fields.
+    - output_pdf_path (str): Path to save the filled PDF.
+    - mapped_data (dict): Dictionary containing field names and values to populate.
+    """
+    # Open the template PDF
+    pdf_document = fitz.open(template_pdf_path)
+
+    # Iterate over each page in the PDF
+    for page_number in range(pdf_document.page_count):
+        page = pdf_document[page_number]
+
+        # Access the form fields (widgets) on the page
+        form_fields = page.widgets()
+
+        if form_fields:
+            for field in form_fields:
+                field_name = field.field_name
+                if field_name and field_name in mapped_data:
+                    # Set the field value
+                    field.field_value = str(mapped_data[field_name])  # Convert to string if necessary
+                    field.update()  # Update the widget to reflect the new value
+
+    # Save the modified PDF
+    pdf_document.save(output_pdf_path)
+    pdf_document.close()
+    print(f"PDF saved as {output_pdf_path}")

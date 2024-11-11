@@ -5,14 +5,16 @@ from flask import request, jsonify, send_file
 from app.api import api_blueprint
 from app.models.user_model import User  # Import the User model
 from flask_jwt_extended import jwt_required  # Import JWT protection
-from app.services.ai_service import extract_data_from_base64_images
-from app.services.pdf_service import fill_pdf
+from app.services.ai_service import extract_data_from_base64_images, extract_raw_text_from_gpt, refine_text_to_boldata
+from app.services.pdf_service import fill_pdf, fill_pdf_with_pymupdf
 from app.utils.field_mapping import field_mapping
 from app.services.pdf_service import convert_pdfs_to_images
 from app.services.chatbot.handler import handle_user_query
 from app.services.chatbot.chatbot_ai import ChatbotAI
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.utils.BOL_mapping import generate_mapped_data
 from app.models.conversation_model import Conversation, Message
+from app.services.pdf_service import extract_text_from_pdfs
 from app import db
 
 import tempfile
@@ -20,13 +22,14 @@ import tempfile
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, '../data/forms')
 INPUT_PDF_PATH = os.path.join(DATA_DIR, 'ISF_FORM.pdf')
+INPUT_BOL_PATH = os.path.join(DATA_DIR, 'BOL.pdf')
 
 @api_blueprint.route('/', methods=['GET'])
 def hello_world():
-    return jsonify({"version": "apiv3"})
+    return jsonify({"version": "apiv5"})
+
 
 @api_blueprint.route('/process-pdfs', methods=['POST'])
-@jwt_required()
 def process_pdfs():
     if 'pdfs' not in request.files:
         return jsonify({"error": "No PDFs provided"}), 400
@@ -45,6 +48,48 @@ def process_pdfs():
     fill_pdf(INPUT_PDF_PATH, output_pdf_path, data, field_mapping)
     print("Pdf filled successfully!!!, sending to backend")
     return send_file(output_pdf_path, as_attachment=True, download_name='filled_form.pdf')
+
+@api_blueprint.route('/process-BOL-pdfs', methods=['POST'])
+def process_BOL__pdfs():
+    if 'pdfs' not in request.files:
+        return jsonify({"error": "No PDFs provided"}), 400
+
+    pdf_files = request.files.getlist('pdfs')
+    extracted_text = extract_text_from_pdfs(pdf_files)
+    logging.info("Text Extracted!!")	
+
+    # Extract data using AI service
+    system_message = "You are an AI assistant that extracts structured data in plain text."
+    initial_prompt = "Please interpret and extract relevant information in json format from the following text."
+    refinement_prompt = "Please refine this data to match the Bill of Lading structure."
+
+    initial_text = extract_raw_text_from_gpt(extracted_text, system_message, initial_prompt)
+
+    logging.info("Data extracted!!")	
+
+    # Step 2: Refine text to match BOLData structure
+    if initial_text:
+        print("Initial Text Data:")
+        refined_data = refine_text_to_boldata(initial_text, system_message)
+        if refined_data:
+            print("Refined Data in JSON format:")
+            # Convert to dictionary first, then use json.dumps for pretty printing
+            print(json.dumps(refined_data.model_dump(), indent=4))
+        else:
+            print("Failed to refine text data to match BOLData structure.")
+    else:
+        print("Failed to extract initial text data.")
+    
+    mapped_data = generate_mapped_data(refined_data.model_dump())
+
+
+    # Fill the PDF with extracted data
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as output_pdf_file:
+        output_pdf_path = output_pdf_file.name
+
+    fill_pdf_with_pymupdf(INPUT_BOL_PATH, output_pdf_path, mapped_data)
+    print("Pdf filled successfully!!!, sending to backend")
+    return send_file(output_pdf_path, as_attachment=True, download_name='filled_BOL_form.pdf')
 
 chatbot_ai = ChatbotAI()
 
