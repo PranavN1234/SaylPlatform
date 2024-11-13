@@ -46,10 +46,10 @@ class BOLData(BaseModel):
     bol_number: Optional[str] = Field(None, alias="BOLnum")
 
     # Billing Information
-    billing_instructions: Optional[str] = Field(None, alias="BillInstructions")
-    billing_city_state_zip: Optional[str] = Field(None, alias="BillCityStateZip")
-    billing_address: Optional[str] = Field(None, alias="BillAddress")
-    billing_name: Optional[str] = Field(None, alias="BillName")
+    billing_instructions: Optional[str] = Field(None, alias="BillInstructions", description="Leave this empty this isn't there")
+    billing_city_state_zip: Optional[str] = Field(None, alias="BillCityStateZip", description="Leave this empty this isn't there")
+    billing_address: Optional[str] = Field(None, alias="BillAddress", description="Leave this empty this isn't there")
+    billing_name: Optional[str] = Field(None, alias="BillName", description="Leave this empty this isn't there")
 
     # Destination Information
     to_fob: Optional[bool] = Field(None, alias="ToFOB", description="This is the shipping address")

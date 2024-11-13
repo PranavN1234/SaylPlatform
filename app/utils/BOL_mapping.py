@@ -84,7 +84,7 @@ def generate_mapped_data(json_data):
     - json_data (dict): JSON data containing values to populate in the PDF.
 
     Returns:
-    - dict: Mapped data ready to be used for PDF form filling.
+    - dict: Mapped data ready to be used for PDF form filling, with None values replaced by empty strings.
     """
     mapped_data = {}
 
@@ -92,11 +92,13 @@ def generate_mapped_data(json_data):
     for json_key, pdf_field in field_mapping.items():
         if json_key in json_data:
             if isinstance(pdf_field, str):  # Direct mapping
-                mapped_data[pdf_field] = json_data[json_key]
+                # Replace None with an empty string
+                mapped_data[pdf_field] = json_data[json_key] if json_data[json_key] is not None else ""
             elif isinstance(pdf_field, list) and isinstance(json_data[json_key], list):  # List fields like nmfc_codes
                 for idx, value in enumerate(json_data[json_key]):
                     if idx < len(pdf_field):
-                        mapped_data[pdf_field[idx]] = value
+                        # Replace None with an empty string
+                        mapped_data[pdf_field[idx]] = value if value is not None else ""
 
     # Item details with indexed fields
     if "item_details" in json_data:
@@ -104,6 +106,7 @@ def generate_mapped_data(json_data):
             for item_key, pdf_field_base in field_mapping["item_details"].items():
                 if item_key in item:
                     field_name = f"{pdf_field_base}{idx}"
-                    mapped_data[field_name] = item[item_key]
+                    # Replace None with an empty string
+                    mapped_data[field_name] = item[item_key] if item[item_key] is not None else ""
 
     return mapped_data
