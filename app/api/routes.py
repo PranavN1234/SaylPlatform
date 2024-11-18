@@ -32,7 +32,7 @@ INPUT_SLI_PATH = os.path.join(DATA_DIR, 'SLI.pdf')
 
 @api_blueprint.route('/', methods=['GET'])
 def hello_world():
-    return jsonify({"version": "apiv5"})
+    return jsonify({"version": "apiv6"})
 
 
 @api_blueprint.route('/process-pdfs', methods=['POST'])
