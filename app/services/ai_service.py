@@ -1,9 +1,9 @@
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from .data_models import BillOfLadingData
-from .BOL_models import BOLData
+from pydantic import BaseModel
 from .image_processing import get_base64_image
-from typing import Optional
+from typing import Type, Optional
 import json
 import logging
 import openai
@@ -93,23 +93,21 @@ def extract_raw_text_from_gpt(ocr_text: str, system_message: str, prompt: str) -
         print(f"Error in API call: {e}")
         return None
     
-def refine_text_to_boldata(raw_text: str, system_message: str) -> Optional[BOLData]:
+def refine_text_to_model(raw_text: str, system_message: str, model_type: Type[BaseModel]) -> Optional[BaseModel]:
     """
-    Second API call to GPT-4o to refine extracted text data to match the BOLData structure using Pydantic.
+    Refine extracted text data to match the specified Pydantic model structure.
 
     Parameters:
     - raw_text (str): The initial text data extracted in the first step.
     - system_message (str): Instruction for the system role.
+    - model_type (Type[BaseModel]): The Pydantic model type (e.g., BOLData, SLIData) to use for refinement.
 
     Returns:
-    - Optional[BOLData]: Refined data structured to match BOLData, or None if there was an error.
+    - Optional[BaseModel]: Refined data structured to match the specified model, or None if there was an error.
     """
-    # Assume BOLData is the Pydantic model you defined
-    response_format = BOLData
-
     messages = [
         {"role": "system", "content": system_message},
-        {"role": "user", "content": f"Refine the following data to match the Bill of Lading structure:\n\n{raw_text}"}
+        {"role": "user", "content": f"Refine the following data to match the {model_type.__name__} structure:\n\n{raw_text}"}
     ]
 
     try:
@@ -117,7 +115,7 @@ def refine_text_to_boldata(raw_text: str, system_message: str) -> Optional[BOLDa
         completion = openai.beta.chat.completions.parse(
             model="gpt-4o-2024-08-06",
             messages=messages,
-            response_format=response_format
+            response_format=model_type
         )
 
         # Retrieve parsed response directly into BOLData format

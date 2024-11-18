@@ -14,14 +14,14 @@ const apiClient = axios.create({
 const uploadFiles = async (files) => {
   const formData = new FormData();
   files.forEach((file) => {
-    formData.append('pdfs', file); // Changed key from 'images' to 'pdfs'
+    formData.append('pdfs', file); // Key matches backend
   });
 
   try {
     const response = await apiClient.post('process-BOL-pdfs', formData);
 
     const contentDisposition = response.headers['content-disposition'];
-    let filename = 'downloaded_file.pdf'; // Default filename
+    let filename = 'filled_forms.zip'; // Default filename
 
     if (contentDisposition) {
       const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
@@ -30,8 +30,9 @@ const uploadFiles = async (files) => {
       }
     }
 
+    // Use FileDownload to save the ZIP file
     FileDownload(response.data, filename);
-    message.success('File downloaded successfully.');
+    message.success('Forms downloaded successfully.');
   } catch (error) {
     console.error('Error uploading PDFs:', error);
     message.error('Error processing PDFs. Please try again.');
